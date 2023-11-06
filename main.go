@@ -3,12 +3,20 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os"
+
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 )
 
 func main() {
+	router := mux.NewRouter()
+
+	router.HandleFunc("/hello", basicHandler).Methods("GET")
+	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
 	server := &http.Server{
 		Addr:    ":3000",
-		Handler: http.HandlerFunc(basicHandler),
+		Handler: loggedRouter,
 	}
 
 	err := server.ListenAndServe()
