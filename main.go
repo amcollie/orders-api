@@ -1,30 +1,17 @@
 package main
 
 import (
+	"context"
 	"fmt"
-	"net/http"
-	"os"
 
-	"github.com/gorilla/handlers"
-	"github.com/gorilla/mux"
+	"github.com/amcollie/orders-api/application"
 )
 
 func main() {
-	router := mux.NewRouter()
+	app := application.New()
 
-	router.HandleFunc("/hello", basicHandler).Methods("GET")
-	loggedRouter := handlers.LoggingHandler(os.Stdout, router)
-	server := &http.Server{
-		Addr:    ":3000",
-		Handler: loggedRouter,
-	}
-
-	err := server.ListenAndServe()
+	err := app.Start(context.TODO())
 	if err != nil {
-		fmt.Println("failed to listen to server", err)
+		fmt.Println("failed to start app:", err)
 	}
-}
-
-func basicHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintln(w, "Hello World!")
 }
