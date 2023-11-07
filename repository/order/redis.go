@@ -84,6 +84,10 @@ func (r *RedisRepo) DeleteByID(ctx context.Context, id uint64) error {
 		return fmt.Errorf("failed to remove from order set: %w", err)
 	}
 
+	if _, err := txn.Exec(ctx); err != nil {
+		return fmt.Errorf("failed to remove the order set: %w", err)
+	}
+
 	return nil
 }
 
@@ -121,13 +125,6 @@ func (r *RedisRepo) FindAll(ctx context.Context, page FindAllPage) (FindResult, 
 	keys, cursor, err := res.Result()
 	if err != nil {
 		return FindResult{}, fmt.Errorf("failed to get order ids: %w", err)
-	}
-
-	if len(keys) == 0 {
-		return FindResult{
-			Orders: []models.Order{},
-			Cursor: 0,
-		}, nil
 	}
 
 	xs, err := r.Client.MGet(ctx, keys...).Result()
